@@ -1,4 +1,4 @@
-# TweestScraper
+# TweetScraper
 
 Simple scraper for Twitter, without using Twitter API. You can search by usernames, filtering by dates. It works using Selenium.
 
