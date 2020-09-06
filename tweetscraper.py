@@ -3,15 +3,31 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import datetime
 import typing
+import pickle
 
 NUM_MAP = {'K':1000, 'M':1000000, 'B':1000000000}
 
 
-def parse_date(str_date):
+def parse_date(str_date:str)->datetime.datetime:
+    """
+    Convert date from Twitter format (e.g.: Aug 9, 2014)
+    
+    Parameters
+    ----------
+    str_date: Date in Twitter format.
+    
+    Return
+    ------
+    Date as datetime object.
+    """
     return datetime.datetime.strptime(str_date, '%b %d, %Y')
 
 
-def convert_str_to_number(x):
+def convert_str_to_number(x:str)->int:
+    """
+    Convert string to number, replacing 'K', 'M' or 'B' if necessary.
+    
+    """
     total_stars = 0
     if x.isdigit():
         total_stars = int(x)
@@ -21,7 +37,7 @@ def convert_str_to_number(x):
     return int(total_stars)
 
 
-def get_data_from_tweet(tweet):
+def get_data_from_tweet(tweet)->dict:
     
     tweet_data = {}
     
@@ -61,8 +77,21 @@ def find_tweets(driver):
     return tweets
 
 
-def get_tweets(usernames:typing.List[str], start_date:datetime.datetime, end_date:datetime.datetime, scroll_pause_time:float=1.) -> typing.Dict:
+def get_tweets(usernames:typing.List[str], start_date:datetime.datetime, end_date:datetime.datetime, scroll_pause_time:float=1., save:bool=False) -> dict:
+    """
+    Get tweets using the 'advanced_search' function of Twitter.
     
+    Parameters
+    ----------
+    usernames: List of twitter usernames to search for.
+    start_date: Start date.
+    end_date: Last date.
+    scroll_pause_time: Time to sleep between each scroll. Increase in case no tweet is found.
+    
+    Return
+    ------
+    tweets: Dictionary with tweets information for each username in usernames.
+    """
     tweets = {username: [] for username in usernames}
     
     op = webdriver.ChromeOptions()
@@ -107,5 +136,10 @@ def get_tweets(usernames:typing.List[str], start_date:datetime.datetime, end_dat
         print('\n')
     
     driver.quit()
+    
+    if save:
+        
+        with open('tweets.pickle', 'wb') as fp:
+            pickle.dump(tweets, fp)
         
     return tweets
